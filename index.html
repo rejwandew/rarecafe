@@ -2662,7 +2662,13 @@
                 const filename = filter === 'today' ? `Rare_Cafe_Today_${new Date().toISOString().split('T')[0]}.pdf` : 
                                  filter === 'custom' ? `Rare_Cafe_Custom_Report.pdf` :
                                  `Rare_Cafe_All_Orders_${new Date().getTime()}.pdf`;
-                docPdf.save(filename);
+                                 
+                const pdfBlobUrl = docPdf.output('bloburl');
+                document.getElementById('pdf-iframe').src = pdfBlobUrl;
+                document.getElementById('pdf-download-btn').onclick = () => {
+                    docPdf.save(filename);
+                };
+                document.getElementById('pdf-modal').classList.remove('hidden');
             } catch (err) {
                 console.error("Error generating PDF:", err);
                 alert("Failed to generate PDF. Make sure there is internet connection to load the PDF library.");
@@ -3069,6 +3075,15 @@
             });
         };
     </script>
+
+    <!-- PDF Preview Modal -->
+    <div id="pdf-modal" class="hidden" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.85); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1rem; backdrop-filter: blur(4px);">
+        <div style="width:100%; max-width:800px; display:flex; justify-content:flex-end; gap:1rem; margin-bottom:.8rem;">
+            <button id="pdf-download-btn" style="background:var(--green); color:var(--bg); border:none; padding:.6rem 1.5rem; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; display:flex; align-items:center; gap:.4rem;">📥 Download PDF</button>
+            <button onclick="document.getElementById('pdf-modal').classList.add('hidden')" style="background:#ff6b6b; color:var(--bg); border:none; padding:.6rem 1.5rem; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem;">&times; Close</button>
+        </div>
+        <iframe id="pdf-iframe" style="width:100%; max-width:800px; height:85vh; border:none; border-radius:12px; background:white; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"></iframe>
+    </div>
 
 </body>
 
