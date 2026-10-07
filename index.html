@@ -1,0 +1,3064 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rare Cafe — Streaks & Rewards | এক কাপ চায়ের গল্প</title>
+    <meta name="description"
+        content="Rare Cafe rewards your daily tea ritual. Drink for 3 consecutive days and earn a free cup. Sign in with Google to start your streak.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,500&family=Inter:wght@300;400;500;600;700&family=Hind+Siliguri:wght@400;600&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        :root {
+            --bg: #0d0806;
+            --bg-2: #160e0a;
+            --surface: rgba(255, 236, 214, 0.05);
+            --surface-2: rgba(255, 236, 214, 0.09);
+            --border: rgba(255, 214, 170, 0.14);
+            --cream: #f6e7d4;
+            --muted: #b49a85;
+            --gold: #e8a85a;
+            --amber: #d0742f;
+            --tea: #b5652c;
+            --milk-tea: #d9a36a;
+            --green: #6fbf73;
+            --red: #e06c5a;
+            --radius: 18px;
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'Inter', system-ui, sans-serif;
+            --bn: 'Hind Siliguri', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--cream);
+            font-family: var(--sans);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .bn {
+            font-family: var(--bn);
+        }
+
+        /* Film grain overlay */
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 999;
+            opacity: .05;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ===== Progress + Nav ===== */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            z-index: 101;
+            background: linear-gradient(90deg, var(--amber), var(--gold));
+            transform-origin: left;
+            transform: scaleX(0);
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem clamp(1rem, 4vw, 3rem);
+            transition: background .4s, padding .4s, backdrop-filter .4s, border-color .4s;
+            border-bottom: 1px solid transparent;
+        }
+
+        header.scrolled {
+            background: rgba(13, 8, 6, .72);
+            backdrop-filter: blur(14px);
+            padding-top: .8rem;
+            padding-bottom: .8rem;
+            border-color: var(--border);
+        }
+
+        header h1 {
+            font-family: var(--serif);
+            font-size: 1.45rem;
+            letter-spacing: .02em;
+            font-weight: 700;
+        }
+
+        header h1 span {
+            color: var(--gold);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: .9rem;
+            color: var(--muted);
+        }
+
+        button {
+            font-family: var(--sans);
+            background: linear-gradient(135deg, var(--gold), var(--amber));
+            color: #1a0f08;
+            border: none;
+            padding: .7rem 1.4rem;
+            border-radius: 999px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: .92rem;
+            letter-spacing: .01em;
+            transition: transform .25s, box-shadow .25s, filter .25s;
+            box-shadow: 0 6px 24px -8px rgba(232, 168, 90, .6);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px -8px rgba(232, 168, 90, .8);
+            filter: brightness(1.06);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--cream);
+            border: 1px solid var(--border);
+            box-shadow: none;
+        }
+
+        .btn-ghost:hover {
+            background: var(--surface-2);
+            box-shadow: none;
+        }
+
+        /* ===== Generic ===== */
+        .eyebrow {
+            display: inline-block;
+            font-size: .75rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .display {
+            font-family: var(--serif);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -.01em;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s cubic-bezier(.2, .7, .2, 1), transform 1s cubic-bezier(.2, .7, .2, 1);
+        }
+
+        .reveal.in {
+            opacity: 1;
+            transform: none;
+        }
+
+        .reveal.d1 {
+            transition-delay: .12s;
+        }
+
+        .reveal.d2 {
+            transition-delay: .24s;
+        }
+
+        .reveal.d3 {
+            transition-delay: .36s;
+        }
+
+        /* ===== HERO ===== */
+        #hero {
+            position: relative;
+            height: 180vh;
+        }
+
+        .hero-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background: url('hero.jpg') center/cover no-repeat;
+            transform: scale(calc(1.05 + var(--p, 0) * .25));
+            filter: brightness(calc(.75 - var(--p, 0) * .45));
+            will-change: transform;
+        }
+
+        .hero-sticky::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 40%, transparent 20%, rgba(13, 8, 6, .85) 85%), linear-gradient(to bottom, rgba(13, 8, 6, .3), transparent 30%, var(--bg) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 0 1.5rem;
+            opacity: calc(1 - var(--p, 0) * 2.2);
+            transform: translateY(calc(var(--p, 0) * -120px));
+        }
+
+        .hero-content .bn {
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            color: var(--gold);
+            margin-bottom: 1rem;
+            letter-spacing: .05em;
+        }
+
+        .hero-title {
+            font-size: clamp(4rem, 13vw, 11rem);
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--gold);
+            font-weight: 500;
+        }
+
+        .hero-sub {
+            max-width: 34rem;
+            margin: 1.5rem auto 2.5rem;
+            color: var(--muted);
+            font-size: clamp(1rem, 1.6vw, 1.2rem);
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-line2 {
+            position: absolute;
+            z-index: 2;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 0 1.5rem;
+            opacity: calc((var(--p, 0) - .45) * 3);
+            transform: translateY(calc((1 - var(--p, 0)) * 60px));
+            pointer-events: none;
+        }
+
+        .hero-line2 p {
+            font-family: var(--serif);
+            font-size: clamp(2rem, 5vw, 4rem);
+            max-width: 18ch;
+            line-height: 1.15;
+        }
+
+        .hero-line2 p em {
+            color: var(--gold);
+        }
+
+        .scroll-cue {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .5rem;
+            font-size: .7rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            color: var(--muted);
+            opacity: calc(1 - var(--p, 0) * 4);
+        }
+
+        .scroll-cue i {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(var(--gold), transparent);
+            animation: cue 2s infinite;
+            transform-origin: top;
+        }
+
+        @keyframes cue {
+            0% {
+                transform: scaleY(0);
+            }
+
+            50% {
+                transform: scaleY(1);
+            }
+
+            100% {
+                transform: scaleY(1);
+                opacity: 0;
+            }
+        }
+
+        /* ===== CHAPTER I: THE RITUAL (pinned cup) ===== */
+        #ritual {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .ritual-visual {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: grid;
+            place-items: center;
+        }
+
+        .ritual-visual .glow {
+            position: absolute;
+            width: 60vmin;
+            height: 60vmin;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232, 168, 90, calc(.08 + var(--p, 0) * .25)), transparent 65%);
+            filter: blur(20px);
+        }
+
+        .ritual-visual svg {
+            width: min(38vmin, 340px);
+            height: auto;
+            position: relative;
+            overflow: visible;
+        }
+
+        .steam path {
+            fill: none;
+            stroke: rgba(246, 231, 212, .5);
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-dasharray: 120;
+            animation: steam 3.2s ease-in-out infinite;
+        }
+
+        .steam path:nth-child(2) {
+            animation-delay: .8s;
+        }
+
+        .steam path:nth-child(3) {
+            animation-delay: 1.6s;
+        }
+
+        @keyframes steam {
+            0% {
+                stroke-dashoffset: 120;
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            100% {
+                stroke-dashoffset: -120;
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+        }
+
+        .ritual-steps {
+            position: relative;
+            z-index: 2;
+        }
+
+        .ritual-step {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 clamp(1.5rem, 6vw, 6rem) 0 1rem;
+            opacity: .15;
+            transition: opacity .6s, transform .6s;
+            transform: translateX(20px);
+        }
+
+        .ritual-step.active {
+            opacity: 1;
+            transform: none;
+        }
+
+        .ritual-step .num {
+            font-family: var(--serif);
+            font-style: italic;
+            color: var(--gold);
+            font-size: 1.1rem;
+            margin-bottom: .8rem;
+        }
+
+        .ritual-step h2,
+        .ritual-step h3 {
+            font-size: clamp(2rem, 4.2vw, 3.6rem);
+            margin-bottom: 1.2rem;
+        }
+
+        .ritual-step p {
+            color: var(--muted);
+            font-size: 1.1rem;
+            max-width: 30rem;
+        }
+
+        .ritual-step .bn {
+            color: var(--gold);
+            font-size: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        /* ===== CHAPTER II: MENU (horizontal) ===== */
+        #menu {
+            position: relative;
+        }
+
+        .menu-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .menu-head {
+            padding: 0 clamp(1.5rem, 6vw, 6rem);
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .menu-head h2 {
+            font-size: clamp(2.2rem, 5vw, 4.2rem);
+        }
+
+        .menu-head p {
+            color: var(--muted);
+            max-width: 26rem;
+        }
+
+        .menu-track {
+            display: flex;
+            gap: 2.2rem;
+            padding: 2rem clamp(1.5rem, 6vw, 6rem);
+            will-change: transform;
+        }
+
+        /* --- 3D product cards --- */
+        .menu-card {
+            flex: 0 0 clamp(260px, 28vw, 360px);
+            height: clamp(380px, 56vh, 480px);
+            border-radius: 28px;
+            padding: 2rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            transform-style: preserve-3d;
+            transform: perspective(1200px) translateY(var(--lift, 0px)) rotateY(calc(var(--sry, 0deg) + var(--ry, 0deg))) rotateX(var(--rx, 0deg)) scale(var(--ss, 1));
+            transition: transform .6s cubic-bezier(.2, .7, .2, 1), box-shadow .6s;
+            box-shadow: 0 40px 70px -35px rgba(0, 0, 0, .95);
+            cursor: grab;
+        }
+
+        .menu-card.tilting {
+            transition: transform .12s linear, box-shadow .6s;
+        }
+
+        .menu-card:hover {
+            --lift: -12px;
+            box-shadow: 0 60px 90px -35px rgba(0, 0, 0, 1), 0 0 60px -20px rgba(232, 168, 90, .45);
+        }
+
+        .card-bg {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: linear-gradient(160deg, color-mix(in srgb, var(--c1) 55%, #0d0806), color-mix(in srgb, var(--c2) 80%, #0d0806));
+        }
+
+        .card-bg::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(circle at 70% 26%, rgba(255, 200, 140, .22), transparent 48%), linear-gradient(to top, rgba(0, 0, 0, .65), transparent 60%);
+        }
+
+        .card-bg .glare {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .4s;
+            background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255, 236, 210, .32), transparent 45%);
+            mix-blend-mode: soft-light;
+        }
+
+        .menu-card:hover .glare {
+            opacity: 1;
+        }
+
+        /* Floating product photo, top-right, popping out of the card */
+        .menu-card .item-img {
+            position: absolute;
+            top: -2.2rem;
+            right: -1.2rem;
+            width: 60%;
+            aspect-ratio: 3 / 4;
+            object-fit: contain;
+            object-position: center;
+            pointer-events: none;
+            filter: drop-shadow(0 16px 24px rgba(0, 0, 0, .65));
+            transform: translate3d(var(--px, 0px), var(--py, 0px), 90px) rotate(8deg);
+            transition: transform .6s cubic-bezier(.2, .7, .2, 1), scale .6s cubic-bezier(.2, .7, .2, 1);
+            animation: floaty 5.5s ease-in-out infinite;
+        }
+
+        .menu-card:nth-child(even) .item-img {
+            animation-delay: -2.7s;
+        }
+
+        .menu-card.tilting .item-img {
+            transition: transform .12s linear, scale .6s;
+        }
+
+        .menu-card:hover .item-img {
+            scale: 1.08;
+            rotate: 12deg;
+        }
+
+        @keyframes floaty {
+
+            0%,
+            100% {
+                translate: 0 0;
+                rotate: 8deg;
+            }
+
+            50% {
+                translate: 0 -10px;
+                rotate: 6deg;
+            }
+        }
+
+        .menu-card .idx {
+            position: absolute;
+            top: 1.6rem;
+            left: 2rem;
+            font-family: var(--serif);
+            font-style: italic;
+            opacity: .75;
+            transform: translateZ(40px);
+        }
+
+        .menu-card .emoji {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 5.5rem;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .4));
+            transform: translateZ(80px) rotate(8deg);
+            transition: transform .6s;
+        }
+
+        .menu-card:hover .emoji {
+            transform: translateZ(100px) scale(1.12) rotate(14deg);
+        }
+
+        .menu-card.has-img .emoji {
+            display: none;
+        }
+
+        .card-text {
+            position: relative;
+            transform: translateZ(110px);
+            text-shadow: 0 2px 14px rgba(0, 0, 0, .6);
+        }
+
+        .menu-card h3 {
+            font-family: var(--serif);
+            font-size: 2rem;
+            line-height: 1.1;
+        }
+
+        .menu-card .bn {
+            font-size: 1.2rem;
+            color: var(--gold);
+            margin-bottom: .4rem;
+        }
+
+        .menu-card p {
+            font-size: .92rem;
+            color: rgba(255, 240, 220, .8);
+        }
+
+        .menu-card .price {
+            display: inline-block;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-top: .6rem;
+            padding: .3rem .9rem;
+            background: rgba(232, 168, 90, 0.15);
+            border: 1px solid rgba(232, 168, 90, 0.35);
+            border-radius: 999px;
+            letter-spacing: .03em;
+        }
+
+        .menu-progress {
+            margin: 2.5rem clamp(1.5rem, 6vw, 6rem) 0;
+            height: 2px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .menu-progress i {
+            display: block;
+            height: 100%;
+            background: var(--gold);
+            transform-origin: left;
+            transform: scaleX(var(--p, 0));
+        }
+
+        /* ===== CHAPTER III: STREAK ===== */
+        #streak {
+            position: relative;
+            height: 450vh;
+        }
+
+        .streak-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 1.5rem;
+            overflow: hidden;
+        }
+
+        .streak-sticky h2 {
+            font-size: clamp(2.2rem, 5vw, 4.2rem);
+            margin-bottom: 1rem;
+        }
+
+        .streak-caption {
+            color: var(--muted);
+            font-size: 1.15rem;
+            min-height: 3.6em;
+            max-width: 34rem;
+            transition: opacity .4s;
+        }
+
+        .days {
+            display: flex;
+            align-items: center;
+            gap: clamp(.5rem, 3vw, 2rem);
+            margin: 3.5rem 0 2rem;
+            position: relative;
+        }
+
+        .day {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .8rem;
+        }
+
+        .day-cup {
+            width: clamp(70px, 11vw, 120px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            border: 2px dashed var(--border);
+            background: var(--surface);
+            filter: grayscale(1);
+            opacity: .35;
+            transition: all .7s cubic-bezier(.3, 1.6, .5, 1);
+        }
+
+        .day.lit .day-cup {
+            filter: none;
+            opacity: 1;
+            border: 2px solid var(--gold);
+            transform: scale(1.08);
+            background: radial-gradient(circle, rgba(232, 168, 90, .28), rgba(232, 168, 90, .04));
+            box-shadow: 0 0 50px -10px var(--gold);
+        }
+
+        .day span {
+            font-size: .8rem;
+            letter-spacing: .25em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .day.lit span {
+            color: var(--gold);
+        }
+
+        .day-link {
+            width: clamp(30px, 8vw, 110px);
+            height: 2px;
+            background: var(--border);
+            position: relative;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .day-link i {
+            position: absolute;
+            inset: 0;
+            background: var(--gold);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform .7s;
+        }
+
+        .day-link.lit i {
+            transform: scaleX(1);
+        }
+
+        .reward {
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+            transform: scale(.7);
+            transition: all .9s cubic-bezier(.3, 1.5, .5, 1);
+            background: radial-gradient(circle, rgba(13, 8, 6, .85) 30%, rgba(13, 8, 6, .95));
+        }
+
+        .reward.show {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .reward-inner {
+            text-align: center;
+        }
+
+        .reward .big-cup {
+            font-size: clamp(5rem, 14vw, 9rem);
+            animation: float 3s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        .reward h3 {
+            font-family: var(--serif);
+            font-size: clamp(2.6rem, 7vw, 5.5rem);
+            background: linear-gradient(135deg, #fff2df, var(--gold), var(--amber));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .reward p {
+            color: var(--muted);
+            margin-top: .5rem;
+        }
+
+        @keyframes float {
+            50% {
+                transform: translateY(-14px) rotate(4deg);
+            }
+        }
+
+        .confetti {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .confetti i {
+            position: absolute;
+            top: -10px;
+            width: 8px;
+            height: 14px;
+            border-radius: 2px;
+            opacity: 0;
+        }
+
+        .reward.show .confetti i {
+            animation: fall 2.8s ease-in forwards;
+        }
+
+        @keyframes fall {
+            0% {
+                opacity: 1;
+                transform: translateY(0) rotate(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(105vh) rotate(720deg);
+            }
+        }
+
+        /* ===== CHAPTER IV: HOW IT WORKS (drawn timeline) ===== */
+        #how {
+            padding: 18vh clamp(1.5rem, 6vw, 6rem);
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        #how>header {
+            position: static;
+            padding: 0;
+            background: none;
+            border: 0;
+            display: block;
+            text-align: center;
+            margin-bottom: 6rem;
+        }
+
+        #how h2 {
+            font-size: clamp(2.2rem, 5vw, 4.2rem);
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+            transform: translateX(-50%);
+        }
+
+        .timeline-line i {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(var(--gold), var(--amber));
+            transform-origin: top;
+            transform: scaleY(var(--p, 0));
+        }
+
+        .t-item {
+            position: relative;
+            width: 50%;
+            padding: 0 3.5rem 7rem;
+        }
+
+        .t-item:nth-child(odd) {
+            margin-left: 50%;
+        }
+
+        .t-item:nth-child(even) {
+            text-align: right;
+        }
+
+        .t-dot {
+            position: absolute;
+            top: .3rem;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 1.4rem;
+            background: var(--bg-2);
+            border: 2px solid var(--border);
+            transition: all .6s;
+        }
+
+        .t-item:nth-child(odd) .t-dot {
+            left: -26px;
+        }
+
+        .t-item:nth-child(even) .t-dot {
+            right: -26px;
+        }
+
+        .t-item.in .t-dot {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px -6px var(--gold);
+        }
+
+        .t-item h3 {
+            font-family: var(--serif);
+            font-size: 1.8rem;
+            margin-bottom: .5rem;
+        }
+
+        .t-item p {
+            color: var(--muted);
+        }
+
+        .t-item .step {
+            color: var(--gold);
+            font-size: .75rem;
+            letter-spacing: .3em;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .rule-note {
+            margin: 2rem auto 0;
+            max-width: 40rem;
+            padding: 1.5rem 2rem;
+            border-radius: var(--radius);
+            text-align: center;
+            background: linear-gradient(135deg, rgba(224, 108, 90, .12), rgba(224, 108, 90, .03));
+            border: 1px solid rgba(224, 108, 90, .3);
+            color: #f0c4b8;
+        }
+
+        /* ===== APP SECTION ===== */
+        #app {
+            position: relative;
+            padding: 16vh clamp(1rem, 4vw, 2rem) 12vh;
+        }
+
+        #app::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse at 50% 0%, rgba(232, 168, 90, .12), transparent 60%);
+        }
+
+        .app-head {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            position: relative;
+        }
+
+        .app-head h2 {
+            font-size: clamp(2.4rem, 6vw, 4.8rem);
+        }
+
+        .app-head p {
+            color: var(--muted);
+            margin-top: .8rem;
+        }
+
+        main {
+            position: relative;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: linear-gradient(160deg, rgba(255, 236, 214, .07), rgba(255, 236, 214, .02));
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: clamp(1.5rem, 4vw, 3rem);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .8);
+            text-align: center;
+        }
+
+        .card h2 {
+            font-family: var(--serif);
+            font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+            margin-bottom: .5rem;
+        }
+
+        .card h3 {
+            font-family: var(--serif);
+            font-size: 1.4rem;
+            margin-bottom: .4rem;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: .95rem;
+        }
+
+        .divider {
+            margin: 2.2rem 0;
+            border: 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.8rem 0 0;
+        }
+
+        .stat-box {
+            padding: 1.6rem;
+            border-radius: var(--radius);
+            border: 1px solid rgba(232, 168, 90, .35);
+            background: radial-gradient(circle at 30% 0%, rgba(232, 168, 90, .2), rgba(232, 168, 90, .03));
+        }
+
+        .stat-box h3 {
+            font-family: var(--sans);
+            font-size: .78rem;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .stat-box p {
+            font-family: var(--serif);
+            font-size: 3.4rem;
+            font-weight: 700;
+            color: var(--gold);
+            line-height: 1.1;
+        }
+
+        .empty {
+            color: var(--muted);
+            font-style: italic;
+            font-size: .92rem;
+            grid-column: 1/-1;
+        }
+
+        select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            margin: 1rem 0;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-family: var(--sans);
+            background: rgba(0, 0, 0, .35);
+            color: var(--cream);
+            border: 1px solid var(--border);
+            appearance: none;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23e8a85a' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.2rem center;
+            transition: border-color .3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        select option {
+            background: #1a110c;
+        }
+
+        #request-form button {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        #request-status-msg {
+            margin-top: 1rem;
+            font-size: .92rem;
+            color: var(--gold);
+            min-height: 1.4em;
+        }
+
+        .streaks-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-top: 1.2rem;
+        }
+
+        .streak-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.3rem;
+            border-radius: var(--radius);
+            transition: transform .3s, border-color .3s;
+        }
+
+        .streak-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(232, 168, 90, .5);
+        }
+
+        .streak-card h4 {
+            color: var(--cream);
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .streak-count {
+            font-family: var(--serif);
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin: .3rem 0;
+        }
+
+        .streak-dots {
+            display: flex;
+            justify-content: center;
+            gap: .4rem;
+            margin-bottom: .6rem;
+        }
+
+        .streak-dots i {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .streak-dots i.on {
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold);
+        }
+
+        .streak-date {
+            font-size: .8rem;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            padding-top: .6rem;
+        }
+
+        .pending-item,
+        .request-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            text-align: left;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1rem 1.2rem;
+            border-radius: 14px;
+            margin-bottom: .7rem;
+            animation: slideIn .5s cubic-bezier(.2, .7, .2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+        }
+
+        .request-card strong {
+            font-size: 1.05rem;
+        }
+
+        .request-meta {
+            font-size: .82rem;
+            color: var(--muted);
+        }
+
+        .request-actions {
+            display: flex;
+            gap: .5rem;
+            flex-shrink: 0;
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, #7fd184, #3f9b49);
+            color: #07210a;
+            box-shadow: 0 6px 20px -8px rgba(111, 191, 115, .7);
+        }
+
+        .btn-reject {
+            background: transparent;
+            color: var(--red);
+            border: 1px solid rgba(224, 108, 90, .5);
+            box-shadow: none;
+        }
+
+        .btn-reject:hover {
+            background: rgba(224, 108, 90, .12);
+            box-shadow: none;
+        }
+
+        .badge {
+            background: rgba(232, 168, 90, .15);
+            color: var(--gold);
+            border: 1px solid rgba(232, 168, 90, .4);
+            padding: .25rem .8rem;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        #customer-pending-list,
+        #admin-request-list {
+            margin: 1.2rem 0;
+        }
+
+        /* ===== SOCIAL / FRIENDS ===== */
+        .social-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: .5rem;
+        }
+
+        .social-tab-btn {
+            background: transparent;
+            color: var(--muted);
+            border: none;
+            box-shadow: none;
+            padding: .5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .3s;
+            position: relative;
+        }
+
+        .social-tab-btn:hover {
+            color: var(--cream);
+            transform: none;
+            background: rgba(255, 236, 214, 0.05);
+        }
+
+        .social-tab-btn.active {
+            color: var(--gold);
+            background: rgba(232, 168, 90, .1);
+        }
+
+        .social-tab-btn .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--red);
+            color: #fff;
+            font-size: .65rem;
+            padding: 2px 6px;
+            border-radius: 12px;
+            display: none;
+            box-shadow: 0 0 10px rgba(224, 108, 90, 0.5);
+        }
+
+        .social-tab-btn .badge-count.show {
+            display: inline-block;
+        }
+
+        .social-panel {
+            display: none;
+            animation: fadeIn .4s ease;
+        }
+
+        .social-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .friend-input-group {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: .5rem;
+        }
+
+        .friend-input-group input {
+            flex: 1;
+            padding: .8rem 1rem;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, .35);
+            border: 1px solid var(--border);
+            color: var(--cream);
+            font-family: var(--sans);
+        }
+
+        .friend-input-group input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .friend-input-group button {
+            padding: .8rem 1.2rem;
+            white-space: nowrap;
+        }
+
+        .friends-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .friend-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-align: left;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .friend-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(232, 168, 90, 0.3);
+        }
+
+        .friend-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 0%, rgba(232, 168, 90, .2), rgba(232, 168, 90, .03));
+            border: 1px solid rgba(232, 168, 90, .4);
+            display: grid;
+            place-items: center;
+            font-size: 1.1rem;
+            font-family: var(--serif);
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+
+        .friend-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .friend-info strong {
+            display: block;
+            font-size: .95rem;
+            color: var(--cream);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .friend-info span {
+            font-size: .75rem;
+            color: var(--muted);
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .req-action-btns {
+            display: flex;
+            gap: .4rem;
+        }
+        .req-action-btns button {
+            padding: .4rem .8rem;
+            font-size: .8rem;
+        }
+
+        /* ===== ORDER FORM ===== */
+        .order-type-toggle {
+            display: flex;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        .order-type-toggle input { display: none; }
+        .order-type-toggle label {
+            flex: 1; text-align: center; padding: .8rem; cursor: pointer;
+            font-size: .9rem; color: var(--muted); transition: all .3s;
+            border-right: 1px solid var(--border);
+        }
+        .order-type-toggle label:last-child { border-right: none; }
+        .order-type-toggle input:checked + label {
+            background: rgba(232, 168, 90, 0.1);
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        .item-qty-group {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1rem;
+            align-items: stretch;
+        }
+        .item-qty-group select {
+            flex: 3; margin: 0;
+            width: auto;
+        }
+        .item-qty-group input {
+            flex: 1; max-width: 70px; margin: 0; padding: 1rem; border-radius: 14px;
+            background: rgba(0, 0, 0, .35); border: 1px solid var(--border);
+            color: var(--cream); font-family: var(--sans); font-size: 1rem;
+            text-align: center;
+        }
+        .item-qty-group input:focus { outline: none; border-color: var(--gold); }
+
+        .group-friends-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: .5rem;
+            text-align: left;
+        }
+        .friend-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            padding: .5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .friend-checkbox-item:hover { background: rgba(255,236,214,.05); }
+        .friend-checkbox-item input { accent-color: var(--gold); width: 16px; height: 16px; margin: 0; }
+        .friend-checkbox-item .friend-name { color: var(--cream); font-size: .95rem; }
+
+        .btn-add {
+            flex: 0 0 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 14px;
+            padding: 0;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all .2s;
+        }
+        .btn-add:hover { transform: scale(1.05); }
+        
+        .order-items-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+        }
+        .order-item-badge {
+            background: rgba(232, 168, 90, 0.15);
+            border: 1px solid var(--gold);
+            color: var(--cream);
+            padding: .4rem .8rem;
+            border-radius: 20px;
+            font-size: .85rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .order-item-badge .remove-btn {
+            color: #ff6b6b;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 1rem 3rem;
+            color: var(--muted);
+            font-size: .85rem;
+            border-top: 1px solid var(--border);
+        }
+
+        footer .display {
+            font-size: 2rem;
+            color: var(--cream);
+            margin-bottom: .4rem;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 820px) {
+            #ritual {
+                grid-template-columns: 1fr;
+            }
+
+            .ritual-visual {
+                grid-row: 1;
+                grid-column: 1;
+            }
+
+            .ritual-steps {
+                grid-row: 1;
+                grid-column: 1;
+            }
+
+            .ritual-visual svg {
+                width: 52vmin;
+                opacity: .35;
+            }
+
+            .ritual-step {
+                padding: 0 1.5rem;
+                text-align: center;
+                align-items: center;
+            }
+
+            .t-item,
+            .t-item:nth-child(odd) {
+                width: 100%;
+                margin-left: 0;
+                padding: 0 0 4.5rem 4.5rem;
+                text-align: left;
+            }
+
+            .t-item:nth-child(even) {
+                text-align: left;
+            }
+
+            .timeline-line {
+                left: 26px;
+            }
+
+            .t-item:nth-child(odd) .t-dot,
+            .t-item:nth-child(even) .t-dot {
+                left: 0;
+                right: auto;
+            }
+
+            .request-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .user-info #user-display-name {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .friend-input-group { flex-wrap: wrap; }
+            .friend-input-group input { flex: 1 1 100%; margin-bottom: .5rem; }
+            .friend-input-group button { flex: 1 1 100%; }
+
+            .item-qty-group { flex-wrap: wrap; }
+            .item-qty-group select { flex: 1 1 100%; margin-bottom: .5rem; }
+            .item-qty-group input { flex: 1; max-width: none; }
+            .btn-add { flex: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+
+            .reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="scroll-progress"></div>
+
+    <header id="site-header">
+        <h1>☕ Rare <span>Cafe</span></h1>
+        <div class="user-info">
+            <span id="user-display-name" class="hidden"></span>
+            <button id="auth-btn">Sign in with Google</button>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" data-scrolly="hero">
+        <div class="hero-sticky">
+            <div class="hero-bg" role="img" aria-label="A steaming glass of milk tea on a wooden tea stall at dawn">
+            </div>
+            <div class="hero-content">
+                <p class="bn">এক কাপ চায়ে, একটি গল্প</p>
+                <h2 class="display hero-title">Rare <em>Cafe</em></h2>
+                <p class="hero-sub">Where every cup tells a story, and every return is rewarded. Three days. Three cups.
+                    One on us.</p>
+                <div class="hero-actions">
+                    <button id="hero-start-btn" onclick="document.getElementById('app').scrollIntoView()">Order Now</button>
+                    <button class="btn-ghost" id="hero-story-btn"
+                        onclick="document.getElementById('ritual').scrollIntoView()">Read the story ↓</button>
+                </div>
+            </div>
+            <div class="hero-line2">
+                <p>Some things are worth <em>coming back</em> for.</p>
+            </div>
+            <div class="scroll-cue">Scroll<i></i></div>
+        </div>
+    </section>
+
+    <!-- ===== CHAPTER I: THE RITUAL ===== -->
+    <section id="ritual" data-scrolly="ritual" aria-label="Chapter one: the ritual">
+        <div class="ritual-visual">
+            <div class="glow"></div>
+            <svg viewBox="0 0 200 280" aria-hidden="true">
+                <defs>
+                    <clipPath id="glass-clip">
+                        <path d="M30 60 L170 60 L155 260 Q154 268 146 268 L54 268 Q46 268 45 260 Z" />
+                    </clipPath>
+                    <linearGradient id="tea-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" id="tea-top" stop-color="#e2b07a" />
+                        <stop offset="100%" id="tea-bottom" stop-color="#8a4a1f" />
+                    </linearGradient>
+                    <linearGradient id="glass-shine" x1="0" x2="1">
+                        <stop offset="0" stop-color="#fff" stop-opacity=".25" />
+                        <stop offset=".3" stop-color="#fff" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+                <g class="steam" id="cup-steam" style="opacity:0">
+                    <path d="M70 50 C60 30, 85 20, 72 0" />
+                    <path d="M100 50 C90 25, 115 18, 100 -8" />
+                    <path d="M130 50 C120 30, 145 20, 130 0" />
+                </g>
+                <g clip-path="url(#glass-clip)">
+                    <rect id="tea-liquid" x="0" y="268" width="200" height="220" fill="url(#tea-grad)" />
+                    <ellipse id="tea-foam" cx="100" cy="268" rx="80" ry="5" fill="#f3dcbc" opacity=".8" />
+                </g>
+                <path d="M30 60 L170 60 L155 260 Q154 268 146 268 L54 268 Q46 268 45 260 Z" fill="url(#glass-shine)"
+                    stroke="rgba(246,231,212,.55)" stroke-width="2.5" />
+                <path d="M33 78 L167 78" stroke="rgba(246,231,212,.2)" stroke-width="1.5" />
+            </svg>
+        </div>
+        <div class="ritual-steps">
+            <article class="ritual-step">
+                <span class="eyebrow">Chapter I — The Ritual</span>
+                <div class="num">i.</div>
+                <h2 class="display">Dawn breaks over the city.</h2>
+                <p>Before the traffic, before the noise, there's a small stall with a kettle that never rests.</p>
+            </article>
+            <article class="ritual-step">
+                <div class="num">ii.</div>
+                <h3 class="display">The kettle begins to sing.</h3>
+                <p>Loose leaves dance in boiling water, deepening from gold to a rich, dark amber.</p>
+            </article>
+            <article class="ritual-step">
+                <div class="num">iii.</div>
+                <h3 class="display">Milk swirls in like a cloud.</h3>
+                <p>Poured high, from cup to cup, until a soft foam crowns the glass. That's how you know it's right.</p>
+                <p class="bn">গরম গরম দুধ চা</p>
+            </article>
+            <article class="ritual-step">
+                <div class="num">iv.</div>
+                <h3 class="display">And for a moment, the world slows down.</h3>
+                <p>That first sip is a ritual. At Rare Cafe, we believe rituals deserve to be rewarded.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- ===== CHAPTER II: THE MENU ===== -->
+    <section id="menu" data-scrolly="menu" aria-label="Chapter two: the menu">
+        <div class="menu-sticky">
+            <div class="menu-head">
+                <div>
+                    <span class="eyebrow">Chapter II — The Menu</span>
+                    <h2 class="display">Ten reasons to return.</h2>
+                </div>
+                <p>Every item builds its own streak. Your favourite, your rhythm — all of it counts.</p>
+            </div>
+            <div class="menu-track" id="menu-track">
+                <article class="menu-card" data-img="dudh_cha.png" style="--c1:#c58a52;--c2:#5a2f14"><span
+                        class="idx">01</span><span class="emoji">🥛</span>
+                    <p class="bn">দুধ চা</p>
+                    <h3>Dudh Cha</h3>
+                    <p class="price">20 TK</p>
+                </article>
+                <article class="menu-card" data-img="lal_cha.png" style="--c1:#a3361f;--c2:#3a0f08"><span
+                        class="idx">02</span><span class="emoji">🍵</span>
+                    <p class="bn">লাল চা</p>
+                    <h3>Lal Cha</h3>
+                    <p class="price">10 TK</p>
+                </article>
+                <article class="menu-card" data-img="lebu_cha.png" style="--c1:#b8a33a;--c2:#3d3a0e"><span
+                        class="idx">03</span><span class="emoji">🍋</span>
+                    <p class="bn">লেবু চা</p>
+                    <h3>Lebu Cha</h3>
+                    <p class="price">15 TK</p>
+                </article>
+                <article class="menu-card" data-img="tetul_cha.png" style="--c1:#7a3b2e;--c2:#26100b"><span
+                        class="idx">04</span><span class="emoji">🫖</span>
+                    <p class="bn">তেঁতুল চা</p>
+                    <h3>Tetul Cha</h3>
+                    <p class="price">15 TK</p>
+                </article>
+                <article class="menu-card" data-img="pora_ruti_small.png" style="--c1:#c9a06a;--c2:#4a3016"><span
+                        class="idx">05</span><span class="emoji">🫓</span>
+                    <p class="bn">পোড়া রুটি (ছোট)</p>
+                    <h3>Pora Ruti [Small]</h3>
+                    <p class="price">30 TK</p>
+                </article>
+                <article class="menu-card" data-img="pora_ruti_large.png" style="--c1:#b0814a;--c2:#3b230e"><span
+                        class="idx">06</span><span class="emoji">🍞</span>
+                    <p class="bn">পোড়া রুটি (বড়)</p>
+                    <h3>Pora Ruti [Large]</h3>
+                    <p class="price">40 TK</p>
+                </article>
+                <article class="menu-card" data-img="horlicks_cha.png" style="--c1:#a77b4f;--c2:#3a2414"><span
+                        class="idx">07</span><span class="emoji">🥤</span>
+                    <p class="bn">হরলিক্স চা</p>
+                    <h3>Horlicks Cha</h3>
+                    <p class="price">30 TK</p>
+                </article>
+                <article class="menu-card" data-img="malai_cha.png" style="--c1:#e0c08f;--c2:#5c3d1c"><span
+                        class="idx">08</span><span class="emoji">🍮</span>
+                    <p class="bn">মালাই চা</p>
+                    <h3>Malai Cha</h3>
+                    <p class="price">30 TK</p>
+                </article>
+                <article class="menu-card" data-img="chicken_singara.png" style="--c1:#d07a2c;--c2:#4b2209"><span
+                        class="idx">09</span><span class="emoji">🥟</span>
+                    <p class="bn">চিকেন সিঙ্গারা</p>
+                    <h3>Chicken Singara</h3>
+                    <p class="price">10 TK</p>
+                </article>
+                <article class="menu-card" data-img="dudh_danish.png" style="--c1:#d89850;--c2:#4e2810"><span
+                        class="idx">10</span><span class="emoji">🥛</span>
+                    <p class="bn">দুধ ড্যানিশ</p>
+                    <h3>Dudh Danish</h3>
+                    <p class="price">40 TK</p>
+                </article>
+            </div>
+            <div class="menu-progress"><i id="menu-progress-bar"></i></div>
+        </div>
+    </section>
+
+    <!-- ===== CHAPTER III: THE STREAK ===== -->
+    <section id="streak" data-scrolly="streak" aria-label="Chapter three: the streak">
+        <div class="streak-sticky">
+            <span class="eyebrow">Chapter III — The Streak</span>
+            <h2 class="display">Three days. That's all.</h2>
+            <p class="streak-caption" id="streak-caption">Keep scrolling to live out a streak.</p>
+            <div class="days">
+                <div class="day" id="day-1">
+                    <div class="day-cup">☕</div><span>Day 1</span>
+                </div>
+                <div class="day-link" id="link-1"><i></i></div>
+                <div class="day" id="day-2">
+                    <div class="day-cup">☕</div><span>Day 2</span>
+                </div>
+                <div class="day-link" id="link-2"><i></i></div>
+                <div class="day" id="day-3">
+                    <div class="day-cup">☕</div><span>Day 3</span>
+                </div>
+            </div>
+            <div class="reward" id="streak-reward">
+                <div class="confetti" id="confetti"></div>
+                <div class="reward-inner">
+                    <div class="big-cup">🎁</div>
+                    <h3>+1 Free Tea</h3>
+                    <p>On the house. Your streak resets, and the story begins again.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CHAPTER IV: HOW IT WORKS ===== -->
+    <section id="how" aria-label="Chapter four: how it works">
+        <header class="reveal">
+            <span class="eyebrow">Chapter IV — The Craft</span>
+            <h2 class="display">How your streak is brewed.</h2>
+        </header>
+        <div class="timeline" id="timeline" data-scrolly="timeline" data-mode="flow">
+            <div class="timeline-line"><i></i></div>
+            <div class="t-item reveal">
+                <div class="t-dot">🛒</div><span class="step">Step 01</span>
+                <h3>Order at the cart</h3>
+                <p>Pick up your favourite — Dudh Cha, Singara, whatever the day calls for.</p>
+            </div>
+            <div class="t-item reveal">
+                <div class="t-dot">📲</div><span class="step">Step 02</span>
+                <h3>Send a request</h3>
+                <p>Sign in with Google and tell us what you had. It takes five seconds.</p>
+            </div>
+            <div class="t-item reveal">
+                <div class="t-dot">✅</div><span class="step">Step 03</span>
+                <h3>The barista approves</h3>
+                <p>Our team verifies your order in real time, right from the counter.</p>
+            </div>
+            <div class="t-item reveal">
+                <div class="t-dot">🔥</div><span class="step">Step 04</span>
+                <h3>Your streak grows</h3>
+                <p>Hit three consecutive days and a free tea lands in your account.</p>
+            </div>
+        </div>
+        <p class="rule-note reveal">⚠️ Miss a full day and your streaks cool down to zero. Any approved item each day
+            keeps every streak warm.</p>
+    </section>
+
+    <!-- ===== CHAPTER V: THE APP ===== -->
+    <section id="app" aria-label="Your rewards">
+        <div class="app-head reveal">
+            <span class="eyebrow">Chapter V — Your Table</span>
+            <h2 class="display">Your table awaits.</h2>
+            <p class="bn">আপনার গল্প এখান থেকেই শুরু</p>
+        </div>
+
+        <main>
+            <!-- Login Prompt View -->
+            <div id="login-view" class="card reveal">
+                <h2>Welcome to Rare Cafe Rewards!</h2>
+                <p class="muted" style="margin: 1rem auto 2rem; max-width: 32rem;">Track your favourite tea streaks!
+                    Drink any tea for 3 consecutive days and earn 1 extra tea for free. Sign in with Google to get
+                    started.</p>
+                <button id="google-signin-main">Sign in with Google</button>
+            </div>
+
+            <!-- Customer Dashboard View -->
+            <div id="customer-view" class="card hidden">
+                <h2>Customer Dashboard</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h3>Free Teas Earned</h3>
+                        <p id="customer-free-teas">0</p>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <h3>My Active Streaks</h3>
+                <p class="muted">Individual streaks for each item (any daily activity keeps them alive)</p>
+                <div id="customer-streaks" class="streaks-list">
+                    <p class="empty">No active streaks yet.</p>
+                </div>
+
+                <hr class="divider">
+
+                <h3>My Pending Requests</h3>
+                <div id="customer-pending-list">
+                    <p class="empty">No pending requests.</p>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Community & Friends</h3>
+                <div class="social-nav">
+                    <button class="social-tab-btn active" onclick="switchSocialTab('friends')" id="btn-tab-friends">My Friends</button>
+                    <button class="social-tab-btn" onclick="switchSocialTab('requests')" id="btn-tab-requests">
+                        Requests <span class="badge-count" id="friend-requests-badge">0</span>
+                    </button>
+                </div>
+                
+                <div id="tab-friends" class="social-panel active">
+                    <div class="friend-input-group">
+                        <input type="email" id="friend-email-input" placeholder="Friend's Gmail address">
+                        <button onclick="sendFriendRequest()">Send Request</button>
+                    </div>
+                    <p id="friend-action-msg" style="font-size: .85rem; color: var(--gold); margin-bottom: 1rem; min-height: 1.2em;"></p>
+                    
+                    <div class="friends-grid" id="friends-list">
+                        <p class="empty">You haven't added any friends yet.</p>
+                    </div>
+                </div>
+
+                <div id="tab-requests" class="social-panel">
+                    <div id="friend-requests-list">
+                        <p class="empty">No pending friend requests.</p>
+                    </div>
+                </div>
+
+                <hr class="divider">
+
+                <h3>Submit Consumption Request</h3>
+                <p class="muted" style="margin-bottom: 1rem;">What did you consume today?</p>
+                <form id="request-form" onsubmit="submitTeaRequest(event)">
+                    <div class="order-type-toggle">
+                        <input type="radio" id="order-ind" name="orderType" value="individual" checked onchange="toggleOrderType()">
+                        <label for="order-ind">Individual Order</label>
+                        
+                        <input type="radio" id="order-grp" name="orderType" value="group" onchange="toggleOrderType()">
+                        <label for="order-grp">Group Order</label>
+                    </div>
+
+                    <div id="group-friends-section" class="hidden">
+                        <p class="muted" style="text-align: left; margin-bottom: .5rem; font-size: .85rem;">Select friends to share this streak with:</p>
+                        <div class="group-friends-container" id="group-friends-list">
+                            <p class="empty" style="text-align: center;">You have no friends to select.</p>
+                        </div>
+                    </div>
+
+                    <div class="item-qty-group">
+                        <select id="consumed-item">
+                            <option value="" disabled selected>Select an item to add</option>
+                            <option value="dudh_cha">1. Dudh Cha (20 TK)</option>
+                            <option value="lal_cha">2. Lal Cha (10 TK)</option>
+                            <option value="lebu_cha">3. Lebu Cha (15 TK)</option>
+                            <option value="tetul_cha">4. Tetul Cha (15 TK)</option>
+                            <option value="pora_ruti_small">5. Pora Ruti [Small] (30 TK)</option>
+                            <option value="pora_ruti_large">6. Pora Ruti [Large] (40 TK)</option>
+                            <option value="horlicks_cha">7. Horlicks Cha (30 TK)</option>
+                            <option value="malai_cha">8. Malai Cha (30 TK)</option>
+                            <option value="chicken_singara">9. Chicken Singara (10 TK)</option>
+                            <option value="dudh_danish">10. Dudh Danish (40 TK)</option>
+                        </select>
+                        <input type="number" id="consumed-qty" min="1" max="50" value="1" placeholder="Qty">
+                        <button type="button" class="btn-add" onclick="addOrderItem()">+</button>
+                    </div>
+
+                    <div id="order-items-wrapper" class="hidden">
+                        <p class="muted" style="text-align: left; margin-bottom: .5rem; font-size: .85rem;">Order List:</p>
+                        <div id="order-items-list" class="order-items-container"></div>
+                    </div>
+
+                    <button type="submit" id="submit-request-btn" style="width: 100%;">Send Request to Admin</button>
+                </form>
+                <p id="request-status-msg"></p>
+            </div>
+
+            <!-- Admin Panel View -->
+            <div id="admin-view" class="card hidden">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom: 1rem;">
+                    <h2>🛡️ Secure Admin Dashboard</h2>
+                    <div style="display:flex; flex-direction:column; gap:.5rem; align-items:flex-end;">
+                        <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+                            <input type="date" id="report-start-date" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--cream); padding:.4rem; border-radius:6px; font-family:var(--sans);">
+                            <span class="muted">to</span>
+                            <input type="date" id="report-end-date" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--cream); padding:.4rem; border-radius:6px; font-family:var(--sans);">
+                            <button onclick="downloadApprovedPDF('custom')" style="background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:8px; font-weight:bold; cursor:pointer;">📥 Custom Report</button>
+                        </div>
+                        <div style="display:flex; gap:.5rem; justify-content:flex-end; width:100%;">
+                            <button id="download-today-btn" onclick="downloadApprovedPDF('today')" style="background:var(--green); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:8px; font-weight:bold; cursor:pointer;">📥 Today's Orders</button>
+                            <button id="download-all-btn" onclick="downloadApprovedPDF('all')" style="background:var(--border); color:var(--cream); border:none; padding:.5rem 1rem; border-radius:8px; font-weight:bold; cursor:pointer;">📥 All Orders</button>
+                        </div>
+                    </div>
+                </div>
+                <p class="muted" style="margin-top: .5rem;">Live incoming customer requests for streak validation:</p>
+                <div id="admin-request-list">
+                    <p class="empty">No pending requests right now.</p>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <footer>
+        <div class="display">Rare Cafe</div>
+        <p class="bn">চা খান, গল্প করুন, আবার আসুন।</p>
+        <p style="margin-top: .8rem;">© 2026 Rare Cafe. Brewed with care.</p>
+    </footer>
+
+    <!-- ===== Scrollytelling engine ===== -->
+    <script>
+        (function () {
+            const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+            const lerp = (a, b, t) => a + (b - a) * t;
+            const header = document.getElementById('site-header');
+            const progressBar = document.getElementById('scroll-progress');
+            const sections = [...document.querySelectorAll('[data-scrolly]')];
+
+            // Menu: size the section so vertical scroll maps to horizontal travel
+            const menu = document.getElementById('menu');
+            const track = document.getElementById('menu-track');
+            function sizeMenu() {
+                const travel = Math.max(0, track.scrollWidth - window.innerWidth);
+                menu.style.height = (travel + window.innerHeight * 1.2) + 'px';
+            }
+
+            // ===== 3D menu cards: build layers, load photos, pointer tilt =====
+            const menuCards = [...document.querySelectorAll('.menu-card')];
+            menuCards.forEach(card => {
+                const bg = document.createElement('div');
+                bg.className = 'card-bg';
+                bg.innerHTML = '<i class="glare"></i>';
+                const text = document.createElement('div');
+                text.className = 'card-text';
+                [...card.children].filter(c => !c.matches('.idx, .emoji')).forEach(c => text.appendChild(c));
+                card.prepend(bg);
+                card.appendChild(text);
+
+                if (card.dataset.img) {
+                    const img = new Image();
+                    img.className = 'item-img';
+                    img.alt = card.querySelector('h3').textContent;
+                    img.decoding = 'async';
+                    img.onload = () => card.classList.add('has-img');
+                    img.onerror = () => img.remove(); // falls back to emoji
+                    img.src = card.dataset.img;
+                    card.insertBefore(img, text);
+                }
+
+                card.addEventListener('pointermove', e => {
+                    const r = card.getBoundingClientRect();
+                    const x = clamp((e.clientX - r.left) / r.width);
+                    const y = clamp((e.clientY - r.top) / r.height);
+                    card.classList.add('tilting');
+                    card.style.setProperty('--ry', ((x - .5) * 20).toFixed(2) + 'deg');
+                    card.style.setProperty('--rx', ((.5 - y) * 16).toFixed(2) + 'deg');
+                    card.style.setProperty('--gx', (x * 100).toFixed(1) + '%');
+                    card.style.setProperty('--gy', (y * 100).toFixed(1) + '%');
+                    card.style.setProperty('--px', ((.5 - x) * 18).toFixed(1) + 'px');
+                    card.style.setProperty('--py', ((.5 - y) * 18).toFixed(1) + 'px');
+                });
+                card.addEventListener('pointerleave', () => {
+                    card.classList.remove('tilting');
+                    ['--ry', '--rx', '--px', '--py'].forEach(v => card.style.removeProperty(v));
+                });
+            });
+
+            // Ritual elements
+            const ritualSteps = [...document.querySelectorAll('.ritual-step')];
+            const teaLiquid = document.getElementById('tea-liquid');
+            const teaFoam = document.getElementById('tea-foam');
+            const teaTop = document.getElementById('tea-top');
+            const teaBottom = document.getElementById('tea-bottom');
+            const steam = document.getElementById('cup-steam');
+
+            // Streak elements
+            const days = [1, 2, 3].map(i => document.getElementById('day-' + i));
+            const links = [1, 2].map(i => document.getElementById('link-' + i));
+            const caption = document.getElementById('streak-caption');
+            const reward = document.getElementById('streak-reward');
+            const captions = [
+                'Keep scrolling to live out a streak.',
+                'Day 1 — Monday morning. A Dudh Cha to start the week. Streak: 1 / 3',
+                'Day 2 — You came back. A Lebu Cha this time. Any item keeps it alive. 2 / 3',
+                'Day 3 — Third day in a row. Something special is brewing… 3 / 3'
+            ];
+
+            // Confetti
+            const confetti = document.getElementById('confetti');
+            const colors = ['#e8a85a', '#d0742f', '#f6e7d4', '#6fbf73', '#e06c5a'];
+            for (let i = 0; i < 60; i++) {
+                const c = document.createElement('i');
+                c.style.left = Math.random() * 100 + '%';
+                c.style.background = colors[i % colors.length];
+                c.style.animationDelay = (Math.random() * .8) + 's';
+                confetti.appendChild(c);
+            }
+
+            const handlers = {
+                hero(p, el) { el.style.setProperty('--p', p.toFixed(4)); },
+                ritual(p) {
+                    const idx = clamp(Math.floor(p * ritualSteps.length), 0, ritualSteps.length - 1);
+                    ritualSteps.forEach((s, i) => s.classList.toggle('active', i === idx));
+                    // Fill the glass from bottom (y=268) up to the rim (y=70)
+                    const fill = clamp((p - .1) / .7);
+                    const y = lerp(268, 72, fill);
+                    teaLiquid.setAttribute('y', y);
+                    teaFoam.setAttribute('cy', y);
+                    // Color: dark tea -> milk tea as milk "swirls in"
+                    const milk = clamp((p - .45) / .3);
+                    teaTop.setAttribute('stop-color', milk > 0 ? `rgb(${lerp(160, 226, milk) | 0},${lerp(80, 176, milk) | 0},${lerp(30, 122, milk) | 0})` : '#a0501e');
+                    teaBottom.setAttribute('stop-color', `rgb(${lerp(110, 150, milk) | 0},${lerp(50, 85, milk) | 0},${lerp(20, 40, milk) | 0})`);
+                    teaFoam.setAttribute('opacity', (milk * .85).toFixed(2));
+                    steam.style.opacity = clamp((p - .55) / .2).toFixed(2);
+                    document.querySelector('.ritual-visual').style.setProperty('--p', p.toFixed(3));
+                },
+                menu(p) {
+                    const travel = Math.max(0, track.scrollWidth - window.innerWidth);
+                    track.style.transform = `translate3d(${-travel * p}px,0,0)`;
+                    document.getElementById('menu-progress-bar').style.setProperty('--p', p.toFixed(4));
+                    // Coverflow: cards rotate toward the viewer as they pass the centre
+                    const mid = window.innerWidth / 2;
+                    menuCards.forEach(card => {
+                        const r = card.getBoundingClientRect();
+                        const d = clamp((r.left + r.width / 2 - mid) / window.innerWidth, -1, 1);
+                        card.style.setProperty('--sry', (-d * 38).toFixed(2) + 'deg');
+                        card.style.setProperty('--ss', (1 - Math.abs(d) * .1).toFixed(3));
+                    });
+                },
+                streak(p) {
+                    const stage = p < .12 ? 0 : p < .35 ? 1 : p < .58 ? 2 : 3;
+                    days.forEach((d, i) => d.classList.toggle('lit', stage > i));
+                    links.forEach((l, i) => l.classList.toggle('lit', stage > i + 1));
+                    if (caption.dataset.stage != stage) { caption.dataset.stage = stage; caption.textContent = captions[stage]; }
+                    reward.classList.toggle('show', p > .78);
+                },
+                timeline(p, el) { el.querySelector('.timeline-line').style.setProperty('--p', p.toFixed(4)); }
+            };
+
+            function progressOf(el) {
+                const r = el.getBoundingClientRect();
+                if (el.dataset.mode === 'flow') {
+                    return clamp((window.innerHeight * .65 - r.top) / r.height);
+                }
+                const total = r.height - window.innerHeight;
+                return total <= 0 ? 0 : clamp(-r.top / total);
+            }
+
+            let ticking = false;
+            function update() {
+                ticking = false;
+                const max = document.documentElement.scrollHeight - window.innerHeight;
+                progressBar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
+                header.classList.toggle('scrolled', window.scrollY > 40);
+                sections.forEach(el => {
+                    const r = el.getBoundingClientRect();
+                    if (r.bottom < -100 || r.top > window.innerHeight + 100) return;
+                    const fn = handlers[el.dataset.scrolly];
+                    if (fn) fn(progressOf(el), el);
+                });
+            }
+            const requestUpdate = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+
+            window.addEventListener('scroll', requestUpdate, { passive: true });
+            window.addEventListener('resize', () => { sizeMenu(); requestUpdate(); });
+            window.addEventListener('load', () => { sizeMenu(); requestUpdate(); });
+            sizeMenu(); update();
+
+            // Reveal-on-scroll
+            const io = new IntersectionObserver(entries => {
+                entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+            }, { threshold: .2 });
+            document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+        })();
+    </script>
+
+    <!-- Firebase SDK v10 (Modular via CDN) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, getDocs, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBDov6YhGgK1xblDuAvbzXHH3u6SYNBZwI",
+            authDomain: "teacartstreaks.firebaseapp.com",
+            projectId: "teacartstreaks",
+            storageBucket: "teacartstreaks.firebasestorage.app",
+            messagingSenderId: "522095631891",
+            appId: "1:522095631891:web:8a41ddfaa6f87f9dd9e9e6",
+            measurementId: "G-4YSZYHM6V0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        const authBtn = document.getElementById('auth-btn');
+        const googleSigninMain = document.getElementById('google-signin-main');
+        const userDisplayName = document.getElementById('user-display-name');
+        const loginView = document.getElementById('login-view');
+        const customerView = document.getElementById('customer-view');
+        const adminView = document.getElementById('admin-view');
+
+        const customerStreaks = document.getElementById('customer-streaks');
+        const customerFreeTeas = document.getElementById('customer-free-teas');
+        const requestStatusMsg = document.getElementById('request-status-msg');
+        const adminRequestList = document.getElementById('admin-request-list');
+
+        let currentUserData = null;
+
+        async function handleGoogleLogin() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (!userSnap.exists()) {
+                    await setDoc(userRef, {
+                        uid: user.uid,
+                        name: user.displayName,
+                        email: user.email,
+                        role: "customer",
+                        streaks: {},
+                        free_teas: 0
+                    });
+                }
+
+                // Bring the user to their dashboard after signing in
+                document.getElementById('app').scrollIntoView();
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Login failed: " + error.message);
+            }
+        }
+
+        authBtn.addEventListener('click', () => {
+            if (auth.currentUser) {
+                signOut(auth);
+            } else {
+                handleGoogleLogin();
+            }
+        });
+        googleSigninMain.addEventListener('click', handleGoogleLogin);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                authBtn.textContent = "Sign Out";
+                userDisplayName.textContent = user.displayName;
+                userDisplayName.classList.remove('hidden');
+                loginView.classList.add('hidden');
+
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    currentUserData = userSnap.data();
+
+                    if (currentUserData.role === 'admin') {
+                        adminView.classList.remove('hidden');
+                        customerView.classList.add('hidden');
+                        initAdminListener();
+                    } else {
+                        customerView.classList.remove('hidden');
+                        adminView.classList.add('hidden');
+                        updateCustomerUI(currentUserData);
+                        initCustomerPendingListener(user.uid);
+                        if (window.initCustomerSocialListeners) {
+                            window.initCustomerSocialListeners(user.email);
+                        }
+                    }
+                }
+            } else {
+                authBtn.textContent = "Sign in with Google";
+                userDisplayName.classList.add('hidden');
+                userDisplayName.textContent = "";
+                loginView.classList.remove('hidden');
+                customerView.classList.add('hidden');
+                adminView.classList.add('hidden');
+                currentUserData = null;
+                
+                if (window.friendsUnsubscribeFrom) window.friendsUnsubscribeFrom();
+                if (window.friendsUnsubscribeTo) window.friendsUnsubscribeTo();
+                if (window.requestsUnsubscribe) window.requestsUnsubscribe();
+            }
+        });
+
+        function updateCustomerUI(data) {
+            customerFreeTeas.textContent = data.free_teas || 0;
+
+            const streaksData = data.streaks || {};
+            customerStreaks.innerHTML = "";
+
+            const keys = Object.keys(streaksData);
+
+            if (keys.length === 0) {
+                customerStreaks.innerHTML = `<p class="empty">No active streaks yet.</p>`;
+                return;
+            }
+
+            keys.forEach((item) => {
+                const streakInfo = streaksData[item];
+                const readableName = item.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                const lastDate = new Date(streakInfo.last_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const dots = [0, 1, 2].map(i => `<i class="${i < streakInfo.count ? 'on' : ''}"></i>`).join('');
+
+                customerStreaks.innerHTML += `
+                    <div class="streak-card">
+                        <h4>${readableName}</h4>
+                        <div class="streak-count">${streakInfo.count} / 3</div>
+                        <div class="streak-dots">${dots}</div>
+                        <div class="streak-date">Last: ${lastDate}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // TELEGRAM BOT NOTIFICATION CONFIG (Admin Phone Alert)
+        const TELEGRAM_BOT_TOKEN = "8649369448:AAGOwjtRaW_pafNA1kiXMFkPl21yGR_31xk";
+        const TELEGRAM_CHAT_ID = "-1004493762558";
+
+        async function sendTelegramAlert(userName, userEmail, itemsArrayOrString, orderType, members) {
+            if (!TELEGRAM_BOT_TOKEN || TELEGRAM_BOT_TOKEN === "YOUR_TELEGRAM_BOT_TOKEN") return;
+            
+            let itemsText = "";
+            if (Array.isArray(itemsArrayOrString)) {
+                itemsText = itemsArrayOrString.map(i => `${i.qty}x ${i.name}`).join(', ');
+            } else {
+                itemsText = itemsArrayOrString.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+
+            let message = `☕ *NEW ORDER RECEIVED - RARE CAFE*%0A%0A👤 *Customer:* ${userName}%0A📧 *Email:* ${userEmail}%0A📦 *Items:* ${itemsText}`;
+            
+            if (orderType === 'group' && members && members.length > 0) {
+                const memberNames = members.map(m => m.name).join(', ');
+                message += `%0A👥 *Group Order with:* ${memberNames}`;
+            } else {
+                message += `%0A🏷️ *Type:* Individual`;
+            }
+            message += `%0A⏰ *Time:* ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`;
+            try {
+                await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${message}&parse_mode=Markdown`);
+            } catch (err) {
+                console.error("Telegram alert failed:", err);
+            }
+        }
+
+        window.currentOrderItems = [];
+
+        window.addOrderItem = function() {
+            const select = document.getElementById('consumed-item');
+            const qtyInput = document.getElementById('consumed-qty');
+            
+            if (!select.value) return;
+            
+            const id = select.value;
+            const rawText = select.options[select.selectedIndex].text;
+            const name = rawText.replace(/^\d+\.\s*/, '').replace(/\s*\([^)]*\)$/, '');
+            const qty = parseInt(qtyInput.value) || 1;
+
+            const existing = window.currentOrderItems.find(i => i.id === id);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                window.currentOrderItems.push({ id, name, qty });
+            }
+
+            renderOrderItems();
+            select.selectedIndex = 0;
+            qtyInput.value = "1";
+        };
+
+        window.removeOrderItem = function(id) {
+            window.currentOrderItems = window.currentOrderItems.filter(i => i.id !== id);
+            renderOrderItems();
+        };
+
+        function renderOrderItems() {
+            const wrapper = document.getElementById('order-items-wrapper');
+            const container = document.getElementById('order-items-list');
+            if (window.currentOrderItems.length === 0) {
+                wrapper.classList.add('hidden');
+                container.innerHTML = "";
+                return;
+            }
+            wrapper.classList.remove('hidden');
+            container.innerHTML = window.currentOrderItems.map(item => `
+                <div class="order-item-badge">
+                    <span>${item.qty}x ${item.name}</span>
+                    <span class="remove-btn" onclick="removeOrderItem('${item.id}')">&times;</span>
+                </div>
+            `).join('');
+        }
+
+        window.submitTeaRequest = async function (e) {
+            e.preventDefault();
+            if (!auth.currentUser) return;
+
+            if (window.currentOrderItems.length === 0) {
+                const select = document.getElementById('consumed-item');
+                if (select.value) {
+                    addOrderItem();
+                } else {
+                    requestStatusMsg.textContent = "⚠️ Please add at least one item to your order.";
+                    return;
+                }
+            }
+
+            const isGroup = document.getElementById('order-grp').checked;
+            
+            let groupMembers = [];
+            if (isGroup) {
+                const checkboxes = document.querySelectorAll('.friend-checkbox-item input:checked');
+                checkboxes.forEach(cb => {
+                    groupMembers.push({
+                        uid: cb.dataset.uid, 
+                        name: cb.dataset.name, 
+                        email: cb.dataset.email
+                    });
+                });
+                if (groupMembers.length === 0) {
+                    requestStatusMsg.textContent = "⚠️ Please select at least one friend for a group order.";
+                    return;
+                }
+            }
+
+            requestStatusMsg.textContent = "Sending request to admin...";
+
+            try {
+                await addDoc(collection(db, "requests"), {
+                    userId: auth.currentUser.uid,
+                    userName: auth.currentUser.displayName,
+                    userEmail: auth.currentUser.email,
+                    itemsArray: window.currentOrderItems,
+                    orderType: isGroup ? "group" : "individual",
+                    groupMembers: groupMembers,
+                    status: "pending",
+                    timestamp: serverTimestamp()
+                });
+
+                sendTelegramAlert(auth.currentUser.displayName, auth.currentUser.email || "No email", window.currentOrderItems, isGroup ? "group" : "individual", groupMembers);
+
+                document.getElementById('consumed-item').selectedIndex = 0;
+                document.getElementById('consumed-qty').value = "1";
+                window.currentOrderItems = [];
+                renderOrderItems();
+
+                if (isGroup) {
+                    document.querySelectorAll('.friend-checkbox-item input').forEach(cb => cb.checked = false);
+                }
+                requestStatusMsg.textContent = "✅ Request sent securely! Waiting for admin approval.";
+            } catch (err) {
+                console.error(err);
+                requestStatusMsg.textContent = "❌ Failed to send request. Check security rules.";
+            }
+        }
+
+        function initCustomerPendingListener(userId) {
+            const customerPendingList = document.getElementById('customer-pending-list');
+            const userRef = doc(db, "users", userId);
+
+            onSnapshot(userRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    updateCustomerUI(docSnap.data());
+                }
+            });
+
+            const q = query(
+                collection(db, "requests"),
+                where("userId", "==", userId),
+                where("status", "==", "pending")
+            );
+
+            onSnapshot(q, (snapshot) => {
+                customerPendingList.innerHTML = "";
+                if (snapshot.empty) {
+                    customerPendingList.innerHTML = `<p class="empty">No pending requests.</p>`;
+                    return;
+                }
+
+                snapshot.forEach((docSnap) => {
+                    const req = docSnap.data();
+                    
+                    let itemsStr = "";
+                    if (req.itemsArray) {
+                        itemsStr = req.itemsArray.map(i => `${i.qty}x ${i.name}`).join(', ');
+                    } else {
+                        const readableItem = req.items ? req.items.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : "Item";
+                        const qtyStr = req.quantity > 1 ? ` x${req.quantity}` : '';
+                        itemsStr = `${readableItem}${qtyStr}`;
+                    }
+                    
+                    let groupBadge = (req.orderType === 'group') ? `<span class="badge" style="background: rgba(111,191,115,.15); color: var(--green); border-color: rgba(111,191,115,.4); margin-right: .5rem;">Group</span>` : '';
+                    
+                    customerPendingList.innerHTML += `
+                        <div class="pending-item" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Ordered: <strong>${itemsStr}</strong></span>
+                            <div style="display:flex; align-items:center; gap:.5rem;">
+                                ${groupBadge}<span class="badge">Pending</span>
+                                <button onclick="cancelRequest('${docSnap.id}')" style="background:none; border:none; color:#ff6b6b; font-size:1.5rem; cursor:pointer; padding:0;" aria-label="Cancel Order">&times;</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.cancelRequest = async function(reqId) {
+            if(confirm("Are you sure you want to cancel this order request?")) {
+                try {
+                    await deleteDoc(doc(db, "requests", reqId));
+                } catch (err) {
+                    console.error("Error cancelling request", err);
+                    alert("Failed to cancel request. It might have already been processed.");
+                }
+            }
+        };
+
+        const ITEM_PRICES = {
+            "dudh_cha": 20,
+            "lal_cha": 10,
+            "lebu_cha": 15,
+            "tetul_cha": 15,
+            "pora_ruti_small": 30,
+            "pora_ruti_large": 40,
+            "horlicks_cha": 30,
+            "malai_cha": 30,
+            "chicken_singara": 10,
+            "dudh_danish": 40
+        };
+
+        window.downloadApprovedPDF = async function(filter = 'all') {
+            try {
+                const q = query(collection(db, "requests"), where("status", "==", "approved"));
+                const snap = await getDocs(q);
+                
+                let approvedDocs = [];
+                let startTimestamp = 0;
+                let endTimestamp = Infinity;
+                let reportDateRangeStr = "All Time";
+
+                if (filter === 'today') {
+                    const now = new Date();
+                    startTimestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+                    reportDateRangeStr = new Date().toLocaleDateString();
+                } else if (filter === 'custom') {
+                    const startVal = document.getElementById('report-start-date').value;
+                    const endVal = document.getElementById('report-end-date').value;
+                    
+                    if (!startVal || !endVal) {
+                        alert("Please select both start and end dates.");
+                        return;
+                    }
+                    startTimestamp = new Date(startVal).getTime();
+                    const endObj = new Date(endVal);
+                    endTimestamp = new Date(endObj.getFullYear(), endObj.getMonth(), endObj.getDate(), 23, 59, 59, 999).getTime();
+                    
+                    if (startTimestamp > endTimestamp) {
+                        alert("Start date cannot be after end date.");
+                        return;
+                    }
+                    reportDateRangeStr = `${startVal} to ${endVal}`;
+                }
+
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    if (filter === 'today' || filter === 'custom') {
+                        if (data.timestamp && data.timestamp.toMillis() >= startTimestamp && data.timestamp.toMillis() <= endTimestamp) {
+                            approvedDocs.push(data);
+                        }
+                    } else {
+                        approvedDocs.push(data);
+                    }
+                });
+
+                if (approvedDocs.length === 0) {
+                    alert(`No approved orders found for the selected date range.`);
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const docPdf = new jsPDF();
+
+                docPdf.setFontSize(18);
+                let title = "Rare Cafe - Approved Orders";
+                if (filter === 'today') title = "Rare Cafe - Today's Orders";
+                if (filter === 'custom') title = "Rare Cafe - Custom Orders Report";
+                
+                docPdf.text(title, 14, 20);
+                docPdf.setFontSize(11);
+                docPdf.text(`Report Period: ${reportDateRangeStr}`, 14, 28);
+                docPdf.text(`Generated on: ${new Date().toLocaleString()}`, 14, 34);
+
+                const tableData = [];
+                let totalTaka = 0;
+                const itemQuantities = {};
+                approvedDocs.forEach(req => {
+                    let itemsStr = "";
+                    let normItems = [];
+
+                    if (req.itemsArray) {
+                        itemsStr = req.itemsArray.map(i => `${i.qty}x ${i.name}`).join(', ');
+                        normItems = req.itemsArray;
+                    } else {
+                        const id = req.items || "dudh_cha";
+                        const name = id.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                        const qty = req.quantity || 1;
+                        itemsStr = `${name} (Qty: ${qty})`;
+                        normItems = [{id: id, name: name, qty: qty}];
+                    }
+
+                    normItems.forEach(item => {
+                        const price = ITEM_PRICES[item.id] || 0;
+                        totalTaka += price * item.qty;
+                        if (!itemQuantities[item.name]) itemQuantities[item.name] = 0;
+                        itemQuantities[item.name] += item.qty;
+                    });
+
+                    const timeStr = req.timestamp ? new Date(req.timestamp.toMillis()).toLocaleString() : "N/A";
+                    const typeStr = req.orderType === "group" ? "Group" : "Individual";
+                    
+                    tableData.push([
+                        req.userName || "Unknown",
+                        req.userEmail || "N/A",
+                        itemsStr,
+                        typeStr,
+                        timeStr
+                    ]);
+                });
+
+                tableData.reverse();
+
+                docPdf.autoTable({
+                    startY: 40,
+                    head: [['Customer', 'Email', 'Items', 'Type', 'Time']],
+                    body: tableData,
+                });
+
+                let finalY = docPdf.lastAutoTable.finalY + 15;
+                
+                docPdf.setFontSize(14);
+                docPdf.text("Report Summary", 14, finalY);
+                
+                finalY += 8;
+                docPdf.setFontSize(12);
+                docPdf.text(`Total Revenue: ${totalTaka} TK`, 14, finalY);
+                
+                finalY += 8;
+                docPdf.text("Items Sold:", 14, finalY);
+                
+                const summaryTableBody = Object.keys(itemQuantities).map(itemName => {
+                    return [itemName, itemQuantities[itemName].toString()];
+                });
+
+                // Sort items by quantity descending
+                summaryTableBody.sort((a, b) => parseInt(b[1]) - parseInt(a[1]));
+
+                docPdf.autoTable({
+                    startY: finalY + 4,
+                    head: [['Item Name', 'Total Quantity']],
+                    body: summaryTableBody,
+                    theme: 'grid',
+                    tableWidth: 100
+                });
+
+                const filename = filter === 'today' ? `Rare_Cafe_Today_${new Date().toISOString().split('T')[0]}.pdf` : 
+                                 filter === 'custom' ? `Rare_Cafe_Custom_Report.pdf` :
+                                 `Rare_Cafe_All_Orders_${new Date().getTime()}.pdf`;
+                docPdf.save(filename);
+            } catch (err) {
+                console.error("Error generating PDF:", err);
+                alert("Failed to generate PDF. Make sure there is internet connection to load the PDF library.");
+            }
+        };
+
+        function initAdminListener() {
+            const q = query(collection(db, "requests"), where("status", "==", "pending"));
+            onSnapshot(q, async (snapshot) => {
+                adminRequestList.innerHTML = "";
+                if (snapshot.empty) {
+                    adminRequestList.innerHTML = `<p class="empty">No pending requests right now.</p>`;
+                    return;
+                }
+
+                for (const docSnap of snapshot.docs) {
+                    const req = docSnap.data();
+                    
+                    let itemsStr = "";
+                    if (req.itemsArray) {
+                        itemsStr = req.itemsArray.map(i => `${i.qty}x ${i.name}`).join(', ');
+                    } else {
+                        const readableItem = req.items ? req.items.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') : "Item";
+                        const qtyStr = req.quantity > 1 ? ` (Qty: ${req.quantity})` : '';
+                        itemsStr = `${readableItem}${qtyStr}`;
+                    }
+
+                    let groupStr = "";
+                    if (req.orderType === "group" && req.groupMembers && req.groupMembers.length > 0) {
+                        const names = req.groupMembers.map(m => m.name).join(', ');
+                        groupStr = `<br><span class="badge" style="background: rgba(111,191,115,.15); color: var(--green); border-color: rgba(111,191,115,.4); margin-top:.4rem; display:inline-block">Group Order</span> <span style="font-size:.8rem; color:var(--muted)">with ${names}</span>`;
+                    }
+
+                    adminRequestList.innerHTML += `
+                        <div class="request-card">
+                            <div>
+                                <strong>${req.userName}</strong><br>
+                                <span class="request-meta">${req.userEmail || "No email"}</span><br>
+                                <span>Ordered: ${itemsStr}</span>
+                                ${groupStr}
+                            </div>
+                            <div class="request-actions">
+                                <button class="btn-approve" onclick="processApproval('${docSnap.id}', true)">Approve</button>
+                                <button class="btn-reject" onclick="processApproval('${docSnap.id}', false)">Reject</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        async function applyStreakLogic(targetUserId, itemName) {
+            const targetUserRef = doc(db, "users", targetUserId);
+            const targetUserSnap = await getDoc(targetUserRef);
+            if (!targetUserSnap.exists()) return;
+
+            const userData = targetUserSnap.data();
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+            let streaks = userData.streaks || {};
+            const streakKeys = Object.keys(streaks);
+
+            if (streaks[itemName] && streaks[itemName].last_date === today) {
+                return; 
+            }
+
+            let hasAnyActivityYesterday = false;
+            if (streakKeys.length > 0) {
+                for (const key of streakKeys) {
+                    if (streaks[key] && streaks[key].last_date === yesterdayStr && streaks[key].count > 0) {
+                        hasAnyActivityYesterday = true;
+                        break;
+                    }
+                }
+            } else {
+                hasAnyActivityYesterday = true;
+            }
+
+            if (!hasAnyActivityYesterday && streakKeys.length > 0) {
+                for (const key of streakKeys) {
+                    if (streaks[key] && streaks[key].last_date !== today) {
+                        streaks[key].count = 0;
+                    }
+                }
+            }
+
+            const currentItemData = streaks[itemName] || { count: 0, last_date: "" };
+            let newCount = hasAnyActivityYesterday ? currentItemData.count + 1 : 1;
+
+            streaks[itemName] = {
+                count: newCount,
+                last_date: today
+            };
+
+            let updateData = { streaks: streaks };
+
+            if (newCount === 3) {
+                updateData.free_teas = (userData.free_teas || 0) + 1;
+                streaks[itemName].count = 0;
+            }
+
+            await updateDoc(targetUserRef, updateData);
+        }
+
+        window.processApproval = async function (requestId, isApproved) {
+            if (!confirm(`Are you sure you want to ${isApproved ? 'approve' : 'reject'} this request?`)) return;
+
+            const requestRef = doc(db, "requests", requestId);
+            const reqSnap = await getDoc(requestRef);
+            if (!reqSnap.exists()) return;
+            const reqData = reqSnap.data();
+
+            if (!isApproved) {
+                await updateDoc(requestRef, { status: "rejected" });
+                alert("Request rejected.");
+                return;
+            }
+
+            const usersToUpdate = [ reqData.userId ];
+            if (reqData.orderType === "group" && reqData.groupMembers) {
+                reqData.groupMembers.forEach(m => {
+                    if (m.uid) usersToUpdate.push(m.uid);
+                });
+            }
+
+            for (const uid of usersToUpdate) {
+                if (reqData.itemsArray) {
+                    for (const itemObj of reqData.itemsArray) {
+                        await applyStreakLogic(uid, itemObj.id);
+                    }
+                } else {
+                    // Backwards compatibility for old single-item requests
+                    if (reqData.items) await applyStreakLogic(uid, reqData.items);
+                }
+            }
+
+            await updateDoc(requestRef, { status: "approved" });
+            alert(`✅ Request approved! Streaks updated for ${usersToUpdate.length} user(s).`);
+        }
+
+        // ===== SOCIAL SYSTEM =====
+        window.switchSocialTab = function(tabName) {
+            document.getElementById('tab-friends').classList.remove('active');
+            document.getElementById('tab-requests').classList.remove('active');
+            document.getElementById('btn-tab-friends').classList.remove('active');
+            document.getElementById('btn-tab-requests').classList.remove('active');
+            
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            document.getElementById(`btn-tab-${tabName}`).classList.add('active');
+        };
+
+        window.sendFriendRequest = async function() {
+            const input = document.getElementById('friend-email-input');
+            const msg = document.getElementById('friend-action-msg');
+            const targetEmail = input.value.trim().toLowerCase();
+
+            if (!targetEmail || !auth.currentUser) {
+                msg.textContent = "Please enter a valid email address.";
+                return;
+            }
+            if (targetEmail === auth.currentUser.email.toLowerCase()) {
+                msg.textContent = "You cannot send a friend request to yourself.";
+                return;
+            }
+
+            msg.textContent = "Searching for user...";
+
+            try {
+                // 1. Check if target user exists
+                const qUser = query(collection(db, "users"), where("email", "==", targetEmail));
+                const userSnapshot = await getDocs(qUser);
+                
+                if (userSnapshot.empty) {
+                    msg.textContent = "No user found with this email on Rare Cafe.";
+                    return;
+                }
+
+                const targetUserDoc = userSnapshot.docs[0];
+                const targetUserId = targetUserDoc.id;
+                const targetUserName = targetUserDoc.data().name;
+
+                // 2. Check if request already exists (no composite index needed)
+                const qReq1 = query(collection(db, "friend_requests"), where("fromEmail", "==", auth.currentUser.email.toLowerCase()));
+                const qReq2 = query(collection(db, "friend_requests"), where("toEmail", "==", auth.currentUser.email.toLowerCase()));
+
+                const [snap1, snap2] = await Promise.all([getDocs(qReq1), getDocs(qReq2)]);
+
+                let alreadyExists = false;
+                snap1.forEach(doc => {
+                    if (doc.data().toEmail === targetEmail) alreadyExists = true;
+                });
+                snap2.forEach(doc => {
+                    if (doc.data().fromEmail === targetEmail) alreadyExists = true;
+                });
+
+                if (alreadyExists) {
+                    msg.textContent = "A friend request already exists or you are already friends.";
+                    return;
+                }
+
+                // 3. Create Request
+                await addDoc(collection(db, "friend_requests"), {
+                    fromUid: auth.currentUser.uid,
+                    fromName: auth.currentUser.displayName,
+                    fromEmail: auth.currentUser.email.toLowerCase(),
+                    toUid: targetUserId,
+                    toName: targetUserName,
+                    toEmail: targetEmail,
+                    status: "pending",
+                    timestamp: serverTimestamp()
+                });
+
+                msg.textContent = `✅ Friend request sent to ${targetUserName}!`;
+                input.value = "";
+                
+                setTimeout(() => {
+                    if (msg.textContent.includes("✅")) msg.textContent = "";
+                }, 3000);
+
+            } catch (err) {
+                console.error(err);
+                msg.textContent = "Error: " + err.message;
+            }
+        };
+
+        window.acceptFriend = async function(reqId) {
+            try {
+                await updateDoc(doc(db, "friend_requests", reqId), { status: "accepted" });
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        window.declineFriend = async function(reqId) {
+            try {
+                if(confirm("Are you sure you want to decline this request?")) {
+                    await deleteDoc(doc(db, "friend_requests", reqId));
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        window.removeFriend = async function(reqId) {
+            if(confirm("Are you sure you want to remove this friend?")) {
+                try {
+                    await deleteDoc(doc(db, "friend_requests", reqId));
+                } catch (err) {
+                    console.error("Error removing friend", err);
+                }
+            }
+        };
+
+        window.friendsUnsubscribeFrom = null;
+        window.friendsUnsubscribeTo = null;
+        window.requestsUnsubscribe = null;
+
+        window.initCustomerSocialListeners = function(userEmail) {
+            const emailLower = userEmail.toLowerCase();
+            const friendsList = document.getElementById('friends-list');
+            const requestsList = document.getElementById('friend-requests-list');
+            const badge = document.getElementById('friend-requests-badge');
+
+            if (window.friendsUnsubscribeFrom) window.friendsUnsubscribeFrom();
+            if (window.friendsUnsubscribeTo) window.friendsUnsubscribeTo();
+            if (window.requestsUnsubscribe) window.requestsUnsubscribe();
+
+            const qToMe = query(collection(db, "friend_requests"), where("toEmail", "==", emailLower));
+            const qFromMe = query(collection(db, "friend_requests"), where("fromEmail", "==", emailLower));
+            
+            let docsToMe = [];
+            let docsFromMe = [];
+
+            window.currentFriendsData = [];
+
+            window.toggleOrderType = function() {
+                const isGroup = document.getElementById('order-grp').checked;
+                const container = document.getElementById('group-friends-section');
+                if (isGroup) {
+                    container.classList.remove('hidden');
+                    renderGroupFriendsChecklist();
+                } else {
+                    container.classList.add('hidden');
+                }
+            };
+
+            function renderGroupFriendsChecklist() {
+                const list = document.getElementById('group-friends-list');
+                if (!window.currentFriendsData || window.currentFriendsData.length === 0) {
+                    list.innerHTML = `<p class="empty" style="text-align: center;">You need to add friends first.</p>`;
+                    return;
+                }
+                list.innerHTML = "";
+                window.currentFriendsData.forEach(f => {
+                    const id = 'cb-' + f.uid;
+                    list.innerHTML += `
+                        <label class="friend-checkbox-item" for="${id}">
+                            <input type="checkbox" id="${id}" data-uid="${f.uid}" data-name="${f.name}" data-email="${f.email}">
+                            <div class="friend-name">${f.name} <span class="muted" style="font-size: .8rem;">(${f.email})</span></div>
+                        </label>
+                    `;
+                });
+            }
+
+            function renderSocialUI() {
+                // 1. Pending Requests (where I am the recipient)
+                const pending = docsToMe.filter(d => d.data.status === "pending");
+                
+                requestsList.innerHTML = "";
+                if (pending.length === 0) {
+                    badge.classList.remove('show');
+                    requestsList.innerHTML = `<p class="empty">No pending friend requests.</p>`;
+                } else {
+                    badge.textContent = pending.length;
+                    badge.classList.add('show');
+                    pending.forEach(reqObj => {
+                        const req = reqObj.data;
+                        const initial = req.fromName ? req.fromName.charAt(0).toUpperCase() : '👤';
+                        requestsList.innerHTML += `
+                            <div class="request-card" style="margin-bottom: .8rem; padding: .8rem 1rem;">
+                                <div class="friend-avatar" style="width: 36px; height: 36px; font-size: 1rem;">${initial}</div>
+                                <div class="friend-info" style="flex:1">
+                                    <strong>${req.fromName}</strong>
+                                    <span>${req.fromEmail}</span>
+                                </div>
+                                <div class="req-action-btns">
+                                    <button class="btn-approve" onclick="acceptFriend('${reqObj.id}')">Accept</button>
+                                    <button class="btn-reject" onclick="declineFriend('${reqObj.id}')">Decline</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                // 2. Accepted Friends (where I am recipient OR sender)
+                const acceptedToMe = docsToMe.filter(d => d.data.status === "accepted");
+                const acceptedFromMe = docsFromMe.filter(d => d.data.status === "accepted");
+                const allFriends = [...acceptedToMe, ...acceptedFromMe];
+
+                window.currentFriendsData = allFriends.map(fObj => {
+                    const f = fObj.data;
+                    const isFromMe = f.fromEmail === emailLower;
+                    return {
+                        name: isFromMe ? (f.toName || f.toEmail.split('@')[0]) : f.fromName,
+                        email: isFromMe ? f.toEmail : f.fromEmail,
+                        uid: isFromMe ? f.toUid : f.fromUid
+                    };
+                });
+
+                if (document.getElementById('order-grp') && document.getElementById('order-grp').checked) {
+                    renderGroupFriendsChecklist();
+                }
+
+                friendsList.innerHTML = "";
+                if (allFriends.length === 0) {
+                    friendsList.innerHTML = `<p class="empty">You haven't added any friends yet.</p>`;
+                    return;
+                }
+
+                allFriends.sort((a, b) => (a.data.timestamp?.seconds || 0) > (b.data.timestamp?.seconds || 0) ? -1 : 1);
+
+                allFriends.forEach(fObj => {
+                    const f = fObj.data;
+                    const isFromMe = f.fromEmail === emailLower;
+                    const friendName = isFromMe ? (f.toName || f.toEmail.split('@')[0]) : f.fromName;
+                    const friendEmail = isFromMe ? f.toEmail : f.fromEmail;
+                    const initial = friendName ? friendName.charAt(0).toUpperCase() : '👤';
+
+                    friendsList.innerHTML += `
+                        <div class="friend-card">
+                            <div class="friend-avatar">${initial}</div>
+                            <div class="friend-info" style="flex:1;">
+                                <strong>${friendName}</strong>
+                                <span>${friendEmail}</span>
+                            </div>
+                            <button onclick="removeFriend('${fObj.id}')" style="background:none; border:none; color:#ff6b6b; font-size:1.5rem; cursor:pointer; padding:0 .5rem;" aria-label="Remove Friend">&times;</button>
+                        </div>
+                    `;
+                });
+            }
+
+            window.friendsUnsubscribeTo = onSnapshot(qToMe, (snap) => {
+                docsToMe = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+                renderSocialUI();
+            });
+
+            window.friendsUnsubscribeFrom = onSnapshot(qFromMe, (snap) => {
+                docsFromMe = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+                renderSocialUI();
+            });
+        };
+    </script>
+
+</body>
+
+</html>
