@@ -1976,9 +1976,9 @@
                     <h2>🛡️ Secure Admin Dashboard</h2>
                     <div style="display:flex; flex-direction:column; gap:.5rem; align-items:flex-end;">
                         <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
-                            <input type="date" id="report-start-date" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--cream); padding:.4rem; border-radius:6px; font-family:var(--sans);">
+                            <input type="date" id="report-start-date" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--cream); padding:.4rem; border-radius:6px; font-family:var(--sans); color-scheme: dark; min-width: 120px; cursor: pointer;">
                             <span class="muted">to</span>
-                            <input type="date" id="report-end-date" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--cream); padding:.4rem; border-radius:6px; font-family:var(--sans);">
+                            <input type="date" id="report-end-date" style="background:rgba(0,0,0,0.3); border:1px solid var(--border); color:var(--cream); padding:.4rem; border-radius:6px; font-family:var(--sans); color-scheme: dark; min-width: 120px; cursor: pointer;">
                             <button onclick="downloadApprovedPDF('custom')" style="background:var(--gold); color:var(--bg); border:none; padding:.5rem 1rem; border-radius:8px; font-weight:bold; cursor:pointer;">📥 Custom Report</button>
                         </div>
                         <div style="display:flex; gap:.5rem; justify-content:flex-end; width:100%;">
@@ -2714,21 +2714,30 @@
             });
         }
 
-        async function applyStreakLogic(targetUserId, itemName) {
+        async function applyStreakLogic(targetUserId, itemName, orderDateObj) {
             const targetUserRef = doc(db, "users", targetUserId);
             const targetUserSnap = await getDoc(targetUserRef);
             if (!targetUserSnap.exists()) return;
 
             const userData = targetUserSnap.data();
-            const today = new Date().toISOString().split('T')[0];
-            const yesterday = new Date();
+            
+            const baseDate = orderDateObj ? new Date(orderDateObj) : new Date();
+            
+            // Format to YYYY-MM-DD using local timezone to ensure streaks reset at exactly midnight local time
+            const getLocalYYYYMMDD = (d) => {
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            };
+
+            const todayStr = getLocalYYYYMMDD(baseDate);
+            
+            const yesterday = new Date(baseDate);
             yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = yesterday.toISOString().split('T')[0];
+            const yesterdayStr = getLocalYYYYMMDD(yesterday);
 
             let streaks = userData.streaks || {};
             const streakKeys = Object.keys(streaks);
 
-            if (streaks[itemName] && streaks[itemName].last_date === today) {
+            if (streaks[itemName] && streaks[itemName].last_date === todayStr) {
                 return; 
             }
 
@@ -2746,7 +2755,7 @@
 
             if (!hasAnyActivityYesterday && streakKeys.length > 0) {
                 for (const key of streakKeys) {
-                    if (streaks[key] && streaks[key].last_date !== today) {
+                    if (streaks[key] && streaks[key].last_date !== todayStr) {
                         streaks[key].count = 0;
                     }
                 }
@@ -2757,7 +2766,7 @@
 
             streaks[itemName] = {
                 count: newCount,
-                last_date: today
+                last_date: todayStr
             };
 
             let updateData = { streaks: streaks };
@@ -2791,14 +2800,16 @@
                 });
             }
 
+            const orderDateObj = reqData.timestamp ? new Date(reqData.timestamp.toMillis()) : new Date();
+
             for (const uid of usersToUpdate) {
                 if (reqData.itemsArray) {
                     for (const itemObj of reqData.itemsArray) {
-                        await applyStreakLogic(uid, itemObj.id);
+                        await applyStreakLogic(uid, itemObj.id, orderDateObj);
                     }
                 } else {
                     // Backwards compatibility for old single-item requests
-                    if (reqData.items) await applyStreakLogic(uid, reqData.items);
+                    if (reqData.items) await applyStreakLogic(uid, reqData.items, orderDateObj);
                 }
             }
 
